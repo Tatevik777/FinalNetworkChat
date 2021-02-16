@@ -5,11 +5,9 @@ import client.controllers.ChatController;
 import clientserver.Command;
 import clientserver.commands.*;
 import javafx.application.Platform;
-import javafx.scene.web.HTMLEditorSkin;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+
+import java.io.*;
 import java.net.Socket;
 
 public class Network {
@@ -84,7 +82,11 @@ public class Network {
                         String sender = data.getSender();
                         String formattedMessage = sender != null ? String.format("%s: %s", sender, message) : message;
                         Platform.runLater(() -> {
-                            chatController.appendMessage(formattedMessage);
+                            try {
+                                chatController.appendMessage(formattedMessage);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         });
                         break;
                     }
@@ -172,6 +174,7 @@ public class Network {
     private Command readCommand() throws IOException {
         try {
             return (Command) dataInputStream.readObject();
+
         } catch (ClassNotFoundException e) {
             String errorMessage = "Получен неизвестный объект";
             System.err.println(errorMessage);
@@ -180,4 +183,5 @@ public class Network {
             return null;
         }
     }
+
 }
